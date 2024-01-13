@@ -1,15 +1,17 @@
+import '@testing-library/jest-dom';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import AxiosMock from 'axios-mock-adapter';
-import { waitFor, render, fireEvent } from '@testing-library/react';
 
-import { api } from '../../services/api';
-import Home from '../../pages/Home';
+import { Mock, vi } from 'vitest';
 import { useCart } from '../../hooks/useCart';
+import Home from '../../pages/Home';
+import { api } from '../../services/api';
 
 const apiMock = new AxiosMock(api);
-const mockedAddProduct = jest.fn();
-const mockedUseCartHook = useCart as jest.Mock;
+const mockedAddProduct = vi.fn();
+const mockedUseCartHook = useCart as Mock;
 
-jest.mock('../../hooks/useCart');
+vi.mock('../../hooks/useCart');
 
 describe('Home Page', () => {
   beforeAll(() => {

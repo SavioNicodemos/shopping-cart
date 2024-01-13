@@ -1,13 +1,15 @@
-import { render, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { fireEvent, render } from '@testing-library/react';
 
+import { Mock, vi } from 'vitest';
 import { useCart } from '../../hooks/useCart';
 import Cart from '../../pages/Cart';
 
-const mockedRemoveProduct = jest.fn();
-const mockedUpdateProductAmount = jest.fn();
-const mockedUseCartHook = useCart as jest.Mock;
+const mockedRemoveProduct = vi.fn();
+const mockedUpdateProductAmount = vi.fn();
+const mockedUseCartHook = useCart as Mock;
 
-jest.mock('../../hooks/useCart');
+vi.mock('../../hooks/useCart');
 
 describe('Cart Page', () => {
   beforeEach(() => {
@@ -33,6 +35,10 @@ describe('Cart Page', () => {
       removeProduct: mockedRemoveProduct,
       updateProductAmount: mockedUpdateProductAmount,
     });
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 
   it('should be able to increase/decrease a product amount', () => {

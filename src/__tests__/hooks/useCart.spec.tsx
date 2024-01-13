@@ -1,17 +1,19 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import '@testing-library/jest-dom';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import AxiosMock from 'axios-mock-adapter';
 
 import { toast } from 'react-toastify';
+import { Mock, vi } from 'vitest';
 import { CartProvider, useCart } from '../../hooks/useCart';
 import { api } from '../../services/api';
 
 const apiMock = new AxiosMock(api);
 
-jest.mock('react-toastify');
+vi.mock('react-toastify');
 
-const mockedToastError = toast.error as jest.Mock;
-const mockedSetItemLocalStorage = jest.spyOn(Storage.prototype, 'setItem');
-const initialStoragedData = [
+const mockedToastError = toast.error as Mock;
+const mockedSetItemLocalStorage = vi.spyOn(Storage.prototype, 'setItem');
+const initialStoredData = [
   {
     id: 1,
     amount: 2,
@@ -34,9 +36,12 @@ describe('useCart Hook', () => {
   beforeEach(() => {
     apiMock.reset();
 
-    jest
-      .spyOn(Storage.prototype, 'getItem')
-      .mockReturnValueOnce(JSON.stringify(initialStoragedData));
+    vi.spyOn(Storage.prototype, 'getItem')
+      .mockReturnValueOnce(JSON.stringify(initialStoredData));
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 
   it('should be able to initialize cart with localStorage value', () => {
@@ -81,7 +86,7 @@ describe('useCart Hook', () => {
         'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis3.jpg',
     });
 
-    const { result, waitForNextUpdate } = renderHook(useCart, {
+    const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
@@ -89,40 +94,41 @@ describe('useCart Hook', () => {
       result.current.addProduct(productId);
     });
 
-    await waitForNextUpdate({ timeout: 200 });
+    await waitFor(() => {
+      expect(result.current.cart).toEqual(
+        expect.arrayContaining([
+          {
+            id: 1,
+            amount: 2,
+            image:
+              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg',
+            price: 179.9,
+            title: 'Tênis de Caminhada Leve Confortável',
+          },
+          {
+            id: 2,
+            amount: 1,
+            image:
+              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis2.jpg',
+            price: 139.9,
+            title: 'Tênis VR Caminhada Confortável Detalhes Couro Masculino',
+          },
+          {
+            id: 3,
+            amount: 1,
+            title: 'Tênis Adidas Duramo Lite 2.0',
+            price: 219.9,
+            image:
+              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis3.jpg',
+          },
+        ])
+      );
+      expect(mockedSetItemLocalStorage).toHaveBeenCalledWith(
+        '@RocketShoes:cart',
+        JSON.stringify(result.current.cart)
+      );
+    }, { timeout: 200 });
 
-    expect(result.current.cart).toEqual(
-      expect.arrayContaining([
-        {
-          id: 1,
-          amount: 2,
-          image:
-            'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg',
-          price: 179.9,
-          title: 'Tênis de Caminhada Leve Confortável',
-        },
-        {
-          id: 2,
-          amount: 1,
-          image:
-            'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis2.jpg',
-          price: 139.9,
-          title: 'Tênis VR Caminhada Confortável Detalhes Couro Masculino',
-        },
-        {
-          id: 3,
-          amount: 1,
-          title: 'Tênis Adidas Duramo Lite 2.0',
-          price: 219.9,
-          image:
-            'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis3.jpg',
-        },
-      ])
-    );
-    expect(mockedSetItemLocalStorage).toHaveBeenCalledWith(
-      '@RocketShoes:cart',
-      JSON.stringify(result.current.cart)
-    );
   });
 
   it('should not be able add a product that does not exist', async () => {
@@ -131,7 +137,7 @@ describe('useCart Hook', () => {
     apiMock.onGet(`stock/${productId}`).reply(404);
     apiMock.onGet(`products/${productId}`).reply(404);
 
-    const { result, waitFor } = renderHook(useCart, {
+    const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
@@ -149,7 +155,7 @@ describe('useCart Hook', () => {
     );
 
     expect(result.current.cart).toEqual(
-      expect.arrayContaining(initialStoragedData)
+      expect.arrayContaining(initialStoredData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
@@ -169,7 +175,7 @@ describe('useCart Hook', () => {
       title: 'Tênis de Caminhada Leve Confortável',
     });
 
-    const { result, waitForNextUpdate } = renderHook(useCart, {
+    const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
@@ -177,32 +183,33 @@ describe('useCart Hook', () => {
       result.current.addProduct(productId);
     });
 
-    await waitForNextUpdate({ timeout: 200 });
+    await waitFor(() => {
+      expect(result.current.cart).toEqual(
+        expect.arrayContaining([
+          {
+            id: 1,
+            amount: 3,
+            image:
+              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg',
+            price: 179.9,
+            title: 'Tênis de Caminhada Leve Confortável',
+          },
+          {
+            id: 2,
+            amount: 1,
+            image:
+              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis2.jpg',
+            price: 139.9,
+            title: 'Tênis VR Caminhada Confortável Detalhes Couro Masculino',
+          },
+        ])
+      );
+      expect(mockedSetItemLocalStorage).toHaveBeenCalledWith(
+        '@RocketShoes:cart',
+        JSON.stringify(result.current.cart)
+      );
+    }, { timeout: 200 });
 
-    expect(result.current.cart).toEqual(
-      expect.arrayContaining([
-        {
-          id: 1,
-          amount: 3,
-          image:
-            'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg',
-          price: 179.9,
-          title: 'Tênis de Caminhada Leve Confortável',
-        },
-        {
-          id: 2,
-          amount: 1,
-          image:
-            'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis2.jpg',
-          price: 139.9,
-          title: 'Tênis VR Caminhada Confortável Detalhes Couro Masculino',
-        },
-      ])
-    );
-    expect(mockedSetItemLocalStorage).toHaveBeenCalledWith(
-      '@RocketShoes:cart',
-      JSON.stringify(result.current.cart)
-    );
   });
 
   it('should not be able to increase a product amount when running out of stock', async () => {
@@ -219,7 +226,7 @@ describe('useCart Hook', () => {
       image: "https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis2.jpg"
     });
 
-    const { result, waitFor } = renderHook(useCart, {
+    const { result, rerender } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
@@ -239,7 +246,7 @@ describe('useCart Hook', () => {
     );
 
     expect(result.current.cart).toEqual(
-      expect.arrayContaining(initialStoragedData)
+      expect.arrayContaining(initialStoredData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
@@ -286,7 +293,7 @@ describe('useCart Hook', () => {
 
     expect(mockedToastError).toHaveBeenCalledWith('Erro na remoção do produto');
     expect(result.current.cart).toEqual(
-      expect.arrayContaining(initialStoragedData)
+      expect.arrayContaining(initialStoredData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
@@ -299,7 +306,7 @@ describe('useCart Hook', () => {
       amount: 5,
     });
 
-    const { result, waitForNextUpdate } = renderHook(useCart, {
+    const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
@@ -307,7 +314,7 @@ describe('useCart Hook', () => {
       result.current.updateProductAmount({ amount: 2, productId });
     });
 
-    await waitForNextUpdate({ timeout: 200 });
+    await waitFor(() => { }, { timeout: 200 });
 
     expect(result.current.cart).toEqual(
       expect.arrayContaining([
@@ -340,7 +347,7 @@ describe('useCart Hook', () => {
 
     apiMock.onGet(`stock/${productId}`).reply(404);
 
-    const { result, waitFor } = renderHook(useCart, {
+    const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
@@ -358,7 +365,7 @@ describe('useCart Hook', () => {
     );
 
     expect(result.current.cart).toEqual(
-      expect.arrayContaining(initialStoragedData)
+      expect.arrayContaining(initialStoredData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
@@ -371,7 +378,7 @@ describe('useCart Hook', () => {
       amount: 1,
     });
 
-    const { result, waitFor } = renderHook(useCart, {
+    const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
@@ -389,7 +396,7 @@ describe('useCart Hook', () => {
     );
 
     expect(result.current.cart).toEqual(
-      expect.arrayContaining(initialStoragedData)
+      expect.arrayContaining(initialStoredData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
   });
@@ -402,7 +409,7 @@ describe('useCart Hook', () => {
       amount: 1,
     });
 
-    const { result, waitForValueToChange } = renderHook(useCart, {
+    const { result } = renderHook(useCart, {
       wrapper: CartProvider,
     });
 
@@ -411,19 +418,19 @@ describe('useCart Hook', () => {
     });
 
     try {
-      await waitForValueToChange(
+      await waitFor(
         () => {
           return result.current.cart;
         },
         { timeout: 50 }
       );
       expect(result.current.cart).toEqual(
-        expect.arrayContaining(initialStoragedData)
+        expect.arrayContaining(initialStoredData)
       );
       expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
     } catch {
       expect(result.current.cart).toEqual(
-        expect.arrayContaining(initialStoragedData)
+        expect.arrayContaining(initialStoredData)
       );
       expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
     }
