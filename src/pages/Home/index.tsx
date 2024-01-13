@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { MdAddShoppingCart } from 'react-icons/md';
 
+import { CanceledError } from 'axios';
+import { toast } from 'react-toastify';
 import { useCart } from '../../hooks/useCart';
 import { api } from '../../services/api';
 import { formatPrice } from '../../util/format';
@@ -34,13 +36,18 @@ const Home = (): JSX.Element => {
     const controller = new AbortController();
 
     async function loadProducts() {
-      const response = await api.get<ProductRequest[]>('products', { signal: controller.signal });
-      const data = response.data.map(product => ({
-        ...product,
-        id: parseInt(product.id),
-        priceFormatted: formatPrice(product.price)
-      }));
-      setProducts(data);
+      try {
+        const response = await api.get<ProductRequest[]>('products', { signal: controller.signal });
+        const data = response.data.map(product => ({
+          ...product,
+          id: parseInt(product.id),
+          priceFormatted: formatPrice(product.price)
+        }));
+        setProducts(data);
+      } catch (error) {
+        if (!(error instanceof CanceledError)) toast.error('Erro ao carregar produtos.');
+        setProducts([]);
+      }
     }
 
     loadProducts();
