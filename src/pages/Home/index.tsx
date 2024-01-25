@@ -13,24 +13,25 @@ export type ProductRequest = {
   title: string;
   price: number;
   image: string;
-}
+};
 
 type ProductFormatted = Omit<ProductRequest, 'id'> & {
   id: number;
   priceFormatted: string;
-}
+};
 
 type CartItemsAmount = {
   [key: number]: number;
-}
+};
 
 const Home = (): JSX.Element => {
   const [products, setProducts] = useState<ProductFormatted[]>([]);
   const { addProduct, cart } = useCart();
 
   const cartItemsAmount = cart.reduce((sumAmount, product) => {
+    // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
     return { ...sumAmount, [product.id]: product.amount };
-  }, {} as CartItemsAmount)
+  }, {} as CartItemsAmount);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -41,7 +42,7 @@ const Home = (): JSX.Element => {
         const data = response.data.map(product => ({
           ...product,
           id: parseInt(product.id),
-          priceFormatted: formatPrice(product.price)
+          priceFormatted: formatPrice(product.price),
         }));
         setProducts(data);
       } catch (error) {
@@ -54,7 +55,7 @@ const Home = (): JSX.Element => {
 
     return () => {
       controller.abort();
-    }
+    };
   }, []);
 
   function handleAddProduct(id: number) {
@@ -69,12 +70,12 @@ const Home = (): JSX.Element => {
           <strong>{product.title}</strong>
           <span>{product.priceFormatted}</span>
           <button
-            type="button"
-            data-testid="add-product-button"
+            type='button'
+            data-testid='add-product-button'
             onClick={() => handleAddProduct(product.id)}
           >
-            <div data-testid="cart-product-quantity">
-              <MdAddShoppingCart size={16} color="#FFF" />
+            <div data-testid='cart-product-quantity'>
+              <MdAddShoppingCart size={16} color='#FFF' />
               {cartItemsAmount[product.id] || 0}
             </div>
 

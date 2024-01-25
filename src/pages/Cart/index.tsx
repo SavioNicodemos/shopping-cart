@@ -1,8 +1,4 @@
-import {
-  MdAddCircleOutline,
-  MdDelete,
-  MdRemoveCircleOutline,
-} from 'react-icons/md';
+import { MdAddCircleOutline, MdDelete, MdRemoveCircleOutline } from 'react-icons/md';
 
 import { useCart } from '../../hooks/useCart';
 import { formatPrice } from '../../util/format';
@@ -14,27 +10,26 @@ type Product = {
   price: number;
   image: string;
   amount: number;
-}
+};
 
 const Cart = (): JSX.Element => {
   const { cart, removeProduct, updateProductAmount } = useCart();
 
   const sortedCart = cart.sort((a, b) => a.id - b.id);
 
-  const total =
-    formatPrice(
-      cart.reduce((sumTotal, product) => {
-        return sumTotal + product.amount * product.price;
-      }, 0)
-    )
+  const total = formatPrice(
+    cart.reduce((sumTotal, product) => {
+      return sumTotal + product.amount * product.price;
+    }, 0)
+  );
 
   function handleProductIncrement(product: Product) {
-    updateProductAmount({ amount: product.amount + 1, productId: product.id })
+    updateProductAmount({ amount: product.amount + 1, productId: product.id });
   }
 
   function handleProductDecrement(product: Product) {
     if (product.amount <= 1) return;
-    updateProductAmount({ amount: product.amount - 1, productId: product.id })
+    updateProductAmount({ amount: product.amount - 1, productId: product.id });
   }
 
   function handleRemoveProduct(productId: number) {
@@ -46,16 +41,16 @@ const Cart = (): JSX.Element => {
       <ProductTable>
         <thead>
           <tr>
-            <th aria-label="product image" />
+            <th aria-label='product image' />
             <th>PRODUTO</th>
             <th>QTD</th>
             <th>SUBTOTAL</th>
-            <th aria-label="delete icon" />
+            <th aria-label='delete icon' />
           </tr>
         </thead>
         <tbody>
           {sortedCart.map(product => (
-            <tr key={product.id} data-testid="product">
+            <tr key={product.id} data-testid='product'>
               <td>
                 <img src={product.image} alt={product.title} />
               </td>
@@ -66,22 +61,17 @@ const Cart = (): JSX.Element => {
               <td>
                 <div>
                   <button
-                    type="button"
-                    data-testid="decrement-product"
+                    type='button'
+                    data-testid='decrement-product'
                     disabled={product.amount <= 1}
                     onClick={() => handleProductDecrement(product)}
                   >
                     <MdRemoveCircleOutline size={20} />
                   </button>
-                  <input
-                    type="text"
-                    data-testid="product-amount"
-                    readOnly
-                    value={product.amount}
-                  />
+                  <input type='text' data-testid='product-amount' readOnly value={product.amount} />
                   <button
-                    type="button"
-                    data-testid="increment-product"
+                    type='button'
+                    data-testid='increment-product'
                     onClick={() => handleProductIncrement(product)}
                   >
                     <MdAddCircleOutline size={20} />
@@ -93,8 +83,8 @@ const Cart = (): JSX.Element => {
               </td>
               <td>
                 <button
-                  type="button"
-                  data-testid="remove-product"
+                  type='button'
+                  data-testid='remove-product'
                   onClick={() => handleRemoveProduct(product.id)}
                 >
                   <MdDelete size={20} />
@@ -106,7 +96,7 @@ const Cart = (): JSX.Element => {
       </ProductTable>
 
       <footer>
-        <button type="button">Finalizar pedido</button>
+        <button type='button'>Finalizar pedido</button>
 
         <Total>
           <span>TOTAL</span>

@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { ReactNode, createContext, useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import { ProductRequest } from '../pages/Home';
 import { api } from '../services/api';
@@ -6,19 +6,19 @@ import { Product, Stock } from '../types';
 
 type CartProviderProps = {
   children: ReactNode;
-}
+};
 
 type UpdateProductAmount = {
   productId: number;
   amount: number;
-}
+};
 
 type CartContextData = {
   cart: Product[];
   addProduct: (productId: number) => Promise<void>;
   removeProduct: (productId: number) => void;
   updateProductAmount: ({ productId, amount }: UpdateProductAmount) => void;
-}
+};
 
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
@@ -47,7 +47,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       const newProduct = {
         ...response.data,
         id: parseInt(response.data.id),
-        amount: 1
+        amount: 1,
       };
 
       localStorage.setItem('@RocketShoes:cart', JSON.stringify([...cart, newProduct]));
@@ -58,7 +58,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if (error instanceof Error) {
         message = error.message;
       }
-      toast.error(message)
+      toast.error(message);
     }
   };
 
@@ -77,10 +77,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     }
   };
 
-  const updateProductAmount = async ({
-    productId,
-    amount,
-  }: UpdateProductAmount) => {
+  const updateProductAmount = async ({ productId, amount }: UpdateProductAmount) => {
     try {
       if (amount <= 1) {
         throw new Error('A quantidade mínima é 1');
@@ -113,9 +110,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   };
 
   return (
-    <CartContext.Provider
-      value={{ cart, addProduct, removeProduct, updateProductAmount }}
-    >
+    <CartContext.Provider value={{ cart, addProduct, removeProduct, updateProductAmount }}>
       {children}
     </CartContext.Provider>
   );

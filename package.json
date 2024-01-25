@@ -10,6 +10,8 @@
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "ts:check": "tsc --noEmit",
+    "lint": "pnpm dlx @biomejs/biome check src",
+    "lint:fix": "pnpm dlx @biomejs/biome check --apply src",
     "server": "json-server server.json -p 3333"
   },
   "dependencies": {
@@ -25,6 +27,7 @@
     "web-vitals": "^3.5.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
     "@testing-library/jest-dom": "^6.3.0",
     "@testing-library/react": "^14.1.2",
     "@types/jest": "^29.5.11",
